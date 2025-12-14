@@ -7,9 +7,7 @@ void manageHttpResponse({
   required http.Response response, // the Http response from the request
   required BuildContext context,
 
-  // the context is to show snackbar
-  required Future<void> Function()
-      onSuccess, // the callback to excute on a successful response
+  required VoidCallback onSuccess
 }) {
   // Switch statement to handle  different http status codes
   switch (response.statusCode) {
