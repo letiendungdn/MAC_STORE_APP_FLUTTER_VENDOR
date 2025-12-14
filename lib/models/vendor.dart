@@ -23,14 +23,14 @@ class Vendor {
 
   factory Vendor.fromMap(Map<String, dynamic> map) {
     return Vendor(
-      id: map['_id'] as String,
-      fullName: map['fullName'] as String,
-      email: map['email'] as String,
-      state: map['state'] as String,
-      city: map['city'] as String,
-      locality: map['locality'] as String,
-      role: map['role'] as String,
-      password: map['password'] as String,
+      id: map['_id'] as String? ?? '',
+      fullName: map['fullName'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      state: map['state'] as String? ?? '',
+      city: map['city'] as String? ?? '',
+      locality: map['locality'] as String? ?? '',
+      role: map['role'] as String? ?? '',
+      password: map['password'] as String? ?? '',
     );
   }
 
@@ -55,5 +55,5 @@ class Vendor {
 
   String toJson() => json.encode(toMap());
 
-  // factory Vendor.fromJson(String source) => Vendor.fromMap(json.decode(source));
+  factory Vendor.fromJson(String source) => Vendor.fromMap(json.decode(source));
 }
