@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:mac_store_app_flutter_vendor_app/global_variables.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/vendor.dart';
 import 'package:mac_store_app_flutter_vendor_app/services/manage_http_response.dart';
+import 'package:mac_store_app_flutter_vendor_app/views/screens/main_vendor_screen.dart';
 
 class VendorAuthController {
   Future<void> signUpVendor({
@@ -46,6 +49,45 @@ class VendorAuthController {
       showSnackBar(context, e.toString());
     }
   }
+
+  Future<void> signInVendor({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) async {
+    try {
+      final http.Response response = await http.post(
+        Uri.parse('$uri/api/vendor/signin'),
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (!context.mounted) return;
+
+      manageHttpResponse(
+        response: response,
+        context: context,
+        onSuccess: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return const MainVendorScreen();
+              },
+            ),
+            (route) => false,
+          );
+          showSnackBar(context, 'Logged in successfully');
+        },
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      showSnackBar(context, e.toString());
+    }
+  }
 }
-
-
