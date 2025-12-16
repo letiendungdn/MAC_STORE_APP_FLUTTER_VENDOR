@@ -22,7 +22,6 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_pageIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _pageIndex,
         onTap: (int value) {
@@ -51,11 +50,12 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
             label: 'Orders',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: 'Logout',
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
+       body: _pages[_pageIndex],
     );
   }
 }
