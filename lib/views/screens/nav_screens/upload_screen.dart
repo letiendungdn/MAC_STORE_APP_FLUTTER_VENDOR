@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mac_store_app_flutter_vendor_app/controllers/category_controllers.dart';
+import 'package:mac_store_app_flutter_vendor_app/controllers/product_controller.dart';
 import 'package:mac_store_app_flutter_vendor_app/controllers/subcategory_controller.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/category.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/subcategory.dart';
@@ -16,10 +17,15 @@ class UploadScreen extends StatefulWidget {
 
 class _UploadScreenState extends State<UploadScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final ProductController _productController = ProductController();
   late Future<List<Category>> futureCategories;
   Future<List<Subcategory>>? futureSubcategories;
   Category? selectedCategory;
   Subcategory? selectedSubcategory;
+  late String productName;
+  late int productPrice;
+  late int quantity;
+  late String description;
 
   final ImagePicker picker = ImagePicker();
 
@@ -46,7 +52,7 @@ class _UploadScreenState extends State<UploadScreen> {
   getSubcategoryByCategory(value) {
     futureSubcategories = SubcategoryController()
         .getSubCategoriesByCategoryName(value.name);
-        // refresh the selected subcategory
+    // refresh the selected subcategory
     selectedSubcategory = null;
   }
 
@@ -238,9 +244,9 @@ class _UploadScreenState extends State<UploadScreen> {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: InkWell(
-              onTap: (){
+              onTap: () {
                 if (_formKey.currentState!.validate()) {
-                  print('Uploaded');
+                  _productController.uploadProduct(context: context, productName: productName, productPrice: productPrice, quantity: quantity, description: description, category: category, vendorId: vendorId, fullName: fullName, subCategory: subCategory, pickedImages: pickedImages)
                 } else {
                   print('Please enter all the fields');
                 }
