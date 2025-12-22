@@ -1,21 +1,23 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mac_store_app_flutter_vendor_app/controllers/category_controllers.dart';
 import 'package:mac_store_app_flutter_vendor_app/controllers/product_controller.dart';
 import 'package:mac_store_app_flutter_vendor_app/controllers/subcategory_controller.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/category.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/subcategory.dart';
+import 'package:mac_store_app_flutter_vendor_app/provider/vendor_provider.dart';
 
-class UploadScreen extends StatefulWidget {
+class UploadScreen extends ConsumerStatefulWidget {
   const UploadScreen({super.key});
 
   @override
-  State<UploadScreen> createState() => _UploadScreenState();
+  _UploadScreenState createState() => _UploadScreenState();
 }
 
-class _UploadScreenState extends State<UploadScreen> {
+class _UploadScreenState extends ConsumerState<UploadScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ProductController _productController = ProductController();
   late Future<List<Category>> futureCategories;
@@ -26,6 +28,8 @@ class _UploadScreenState extends State<UploadScreen> {
   late int productPrice;
   late int quantity;
   late String description;
+
+  bool isLoading = false;
 
   final ImagePicker picker = ImagePicker();
 
@@ -97,6 +101,9 @@ class _UploadScreenState extends State<UploadScreen> {
                 SizedBox(
                   width: 200,
                   child: TextFormField(
+                    onChanged: (value) {
+                      productName = value;
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Enter product name';
@@ -114,6 +121,10 @@ class _UploadScreenState extends State<UploadScreen> {
                 SizedBox(
                   width: 200,
                   child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      productPrice = int.parse(value);
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Enter product Price';
@@ -131,6 +142,10 @@ class _UploadScreenState extends State<UploadScreen> {
                 SizedBox(
                   width: 200,
                   child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      quantity = int.parse(value);
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Enter product Quantity';
@@ -212,6 +227,9 @@ class _UploadScreenState extends State<UploadScreen> {
                 SizedBox(
                   width: 400,
                   child: TextFormField(
+                    onChanged: (value) {
+                      description = value;
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Enter product Description';
@@ -244,9 +262,34 @@ class _UploadScreenState extends State<UploadScreen> {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: InkWell(
-              onTap: () {
+              onTap: () async {
+                final fullName = ref.read(vendorProvider)!.fullName;
+                final vendorId = ref.read(vendorProvider)!.id;
                 if (_formKey.currentState!.validate()) {
-                  _productController.uploadProduct(context: context, productName: productName, productPrice: productPrice, quantity: quantity, description: description, category: category, vendorId: vendorId, fullName: fullName, subCategory: subCategory, pickedImages: pickedImages)
+                  setState(() {
+                    isLoading = true;
+                  });
+                  await _productController
+                      .uploadProduct(
+                        context: context,
+                        productName: productName,
+                        productPrice: productPrice,
+                        quantity: quantity,
+                        description: description,
+                        category: selectedCategory!.name,
+                        vendorId: vendorId,
+                        fullName: fullName,
+                        subCategory: selectedSubcategory!.subCategoryName,
+                        pickedImages: images,
+                      )
+                      .whenComplete(() {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        selectedCategory = null;
+                        selectedSubcategory = null;
+                        images.clear();
+                      });
                 } else {
                   print('Please enter all the fields');
                 }
@@ -258,8 +301,10 @@ class _UploadScreenState extends State<UploadScreen> {
                   color: Colors.blue.shade900,
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: const Center(
-                  child: Text(
+                child: Center(
+                  child: isLoading ? CircularProgressIndicator(
+                    color: Colors.white,
+                  ) : const Text(
                     'Upload Product',
                     style: TextStyle(
                       color: Colors.white,
