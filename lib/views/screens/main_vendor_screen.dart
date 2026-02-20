@@ -1,5 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mac_store_app_flutter_vendor_app/views/screens/nav_screens/earnings_screen.dart';
+import 'package:mac_store_app_flutter_vendor_app/views/screens/nav_screens/edit_screen.dart';
+import 'package:mac_store_app_flutter_vendor_app/views/screens/nav_screens/order_screen.dart';
+import 'package:mac_store_app_flutter_vendor_app/views/screens/nav_screens/upload_screen.dart';
+import 'package:mac_store_app_flutter_vendor_app/views/screens/nav_screens/vendor_profile_screen.dart';
 
 class MainVendorScreen extends StatefulWidget {
   const MainVendorScreen({super.key});
@@ -12,11 +17,11 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
   int _pageIndex = 0;
 
   final List<Widget> _pages = const <Widget>[
-    Center(child: Text('Earnings')),
-    Center(child: Text('Upload')),
-    Center(child: Text('Edit')),
-    Center(child: Text('Orders')),
-    Center(child: Text('Logout')),
+    EarningsScreen(),
+    UploadScreen(),
+    EditScreen(),
+    OrderScreen(),
+    VendorProfileScreen(),
   ];
 
   @override
