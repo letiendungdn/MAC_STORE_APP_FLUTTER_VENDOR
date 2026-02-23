@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mac_store_app_flutter_vendor_app/controllers/order_controller.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/order.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final Order order;
+  final OrderController orderController = OrderController();
 
-  const OrderDetailScreen({super.key, required this.order});
+   OrderDetailScreen({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -242,14 +244,24 @@ class OrderDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await orderController.updateDeliveryStatus(
+                    id: order.id,
+                    context: context,
+                  );
+                },
                 child: Text(
                   'Mark as Delivered?',
                   style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await orderController.cancelOrder(
+                    id: order.id,
+                    context: context,
+                  );
+                },
                 child: Text(
                   'Cancel',
                   style: GoogleFonts.montserrat(
