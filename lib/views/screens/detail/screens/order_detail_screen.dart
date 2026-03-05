@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app_flutter_vendor_app/controllers/order_controller.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/order.dart';
+import 'package:mac_store_app_flutter_vendor_app/provider/order_provider.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends ConsumerStatefulWidget {
   final Order order;
-  final OrderController orderController = OrderController();
 
-   OrderDetailScreen({super.key, required this.order});
+  const OrderDetailScreen({super.key, required this.order});
+
+  @override
+  ConsumerState<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
+  final OrderController orderController = OrderController();
 
   @override
   Widget build(BuildContext context) {
+    // Watch the list of orders to trigger automatic UI rebuilds.
+    final orders = ref.watch(orderProvider);
+    // Find the updated order in the list.
+    final updatedOrder = orders.firstWhere(
+      (o) => o.id == widget.order.id,
+      orElse: () => widget.order,
+    );
+    final order = updatedOrder;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -138,9 +154,9 @@ class OrderDetailScreen extends StatelessWidget {
                             height: 25,
                             clipBehavior: Clip.antiAlias,
                             decoration: BoxDecoration(
-                              color: order.delivered == true
+                              color: updatedOrder.delivered == true
                                   ? const Color(0xFF3C55EF)
-                                  : order.processing == true
+                                  : updatedOrder.processing == true
                                   ? Colors.purple
                                   : Colors.red,
                               borderRadius: BorderRadius.circular(4),
@@ -152,9 +168,9 @@ class OrderDetailScreen extends StatelessWidget {
                                   left: 9,
                                   top: 2,
                                   child: Text(
-                                    order.delivered == true
+                                    updatedOrder.delivered == true
                                         ? "Delivered"
-                                        : order.processing == true
+                                        : updatedOrder.processing == true
                                         ? "Processing"
                                         : "Cancelled",
                                     style: GoogleFonts.montserrat(
@@ -244,26 +260,46 @@ class OrderDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () async {
-                  await orderController.updateDeliveryStatus(
-                    id: order.id,
-                    context: context,
-                  );
-                },
+                onPressed: updatedOrder.delivered == true || updatedOrder.processing == false
+                    ? null
+                    : () async {
+                        await orderController
+                            .updateDeliveryStatus(
+                              id: widget.order.id,
+                              context: context,
+                            )
+                            .whenComplete(() {
+                              ref.read(orderProvider.notifier).updateOrderStatus(
+                                    widget.order.id,
+                                    delivered: true,
+                                    processing: false,
+                                  );
+                            });
+                      },
                 child: Text(
-                  'Mark as Delivered?',
+                  updatedOrder.delivered == true
+                      ? 'Delivered'
+                      : 'Mark as Delivered?',
                   style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
                 ),
               ),
               TextButton(
-                onPressed: () async {
-                  await orderController.cancelOrder(
-                    id: order.id,
-                    context: context,
-                  );
-                },
+                onPressed: updatedOrder.processing == false || updatedOrder.delivered == true
+                    ? null
+                    : () async {
+                        await orderController
+                            .cancelOrder(id: widget.order.id, context: context)
+                            .whenComplete(() {
+                              ref
+                                  .read(orderProvider.notifier)
+                                  .updateOrderStatus(
+                                    widget.order.id,
+                                    processing: false,
+                                  );
+                            });
+                      },
                 child: Text(
-                  'Cancel',
+                  updatedOrder.processing == false ? 'Cancelled' : 'Cancel',
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
