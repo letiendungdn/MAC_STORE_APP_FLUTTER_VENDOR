@@ -1,6 +1,6 @@
 //A class that extends StateNotifier to manage the state of total earnings
 
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/order.dart';
 
 class TotalEarningsProvider extends StateNotifier<Map<String, dynamic>> {

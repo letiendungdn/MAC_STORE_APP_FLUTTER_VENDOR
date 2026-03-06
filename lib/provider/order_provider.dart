@@ -1,4 +1,5 @@
-import 'package:flutter_riverpod/legacy.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/order.dart';
 
 class OrderProvider extends StateNotifier<List<Order>> {

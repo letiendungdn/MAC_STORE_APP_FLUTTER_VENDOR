@@ -1,5 +1,6 @@
 
-import 'package:flutter_riverpod/legacy.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/vendor.dart';
 
 class VendorProvider extends StateNotifier<Vendor?> {
