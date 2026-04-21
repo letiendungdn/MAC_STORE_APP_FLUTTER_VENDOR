@@ -2,19 +2,24 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mac_store_app_flutter_vendor_app/global_variables.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/order.dart';
 import 'package:mac_store_app_flutter_vendor_app/services/manage_http_response.dart';
 
 class OrderController {
-
   // Method to GET Orders by vendor id
   Future<List<Order>> loadOrders({required String vendorId}) async {
     try {
+      final SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      final String? token = sharedPreferences.getString('auth_token');
+
       http.Response response = await http.get(
         Uri.parse('$uri/api/orders/vendors/$vendorId'),
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
+          'x-auth-token': token!,
         },
       );
 
@@ -109,10 +114,7 @@ class OrderController {
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({
-          "delivered": true,
-          "processing": false,
-        }),
+        body: jsonEncode({"delivered": true, "processing": false}),
       );
 
       if (!context.mounted) return;
@@ -139,10 +141,7 @@ class OrderController {
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({
-          "processing": false,
-          "delivered": false,
-        }),
+        body: jsonEncode({"processing": false, "delivered": false}),
       );
 
       if (!context.mounted) return;

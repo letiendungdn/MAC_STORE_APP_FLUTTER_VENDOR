@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mac_store_app_flutter_vendor_app/global_variables.dart';
 import 'package:mac_store_app_flutter_vendor_app/models/product.dart';
@@ -22,16 +23,19 @@ class ProductController {
     required List<File>? pickedImages,
   }) async {
     final List<String> images = <String>[];
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    final String? token = sharedPreferences.getString('auth_token');
     final cloudinary = CloudinaryPublic('ducobtxxe', 'ymg0fxf2');
 
     if (pickedImages != null && pickedImages.isNotEmpty) {
       try {
         // Upload each image to Cloudinary and collect secure URLs.
         for (final File image in pickedImages) {
-          final CloudinaryResponse cloudinaryResponse =
-              await cloudinary.uploadFile(
-            CloudinaryFile.fromFile(image.path, folder: productName),
-          );
+          final CloudinaryResponse cloudinaryResponse = await cloudinary
+              .uploadFile(
+                CloudinaryFile.fromFile(image.path, folder: productName),
+              );
           images.add(cloudinaryResponse.secureUrl);
         }
       } catch (e) {
@@ -62,8 +66,9 @@ class ProductController {
         final http.Response response = await http.post(
           Uri.parse('$uri/api/add-product'),
           body: product.toJson(),
-          headers: const <String, String>{
+          headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
+            if (token != null) 'x-auth-token': token,
           },
         );
 
